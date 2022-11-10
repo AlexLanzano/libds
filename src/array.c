@@ -62,10 +62,7 @@ void array_free(array_t *array)
 
 int array_set(array_t *array, size_t index, void *data)
 {
-    assert(array);
-    assert(data);
-
-    if (index >= array->length) {
+    if (!array || !data|| index >= array->length) {
         return -1;
     }
 
@@ -78,10 +75,7 @@ int array_set(array_t *array, size_t index, void *data)
 
 int array_get(array_t *array, size_t index, void *data)
 {
-    assert(array);
-    assert(data);
-
-    if (index >= array->length) {
+    if (!array || !data || index >= array->length) {
         return -1;
     }
 
@@ -93,10 +87,7 @@ int array_get(array_t *array, size_t index, void *data)
 }
 int array_insert(array_t *array, size_t index, void *data)
 {
-    assert(array);
-    assert(data);
-
-    if (index > array->length) {
+    if (!array || !data || index > array->length) {
         return -1;
     }
 
@@ -127,16 +118,14 @@ int array_insert(array_t *array, size_t index, void *data)
 
 int array_remove(array_t *array, size_t index)
 {
-    assert(array);
-
-    if (index > array->length) {
+    if (!array || index > array->length) {
         return -1;
     }
 
     uint8_t *dest = ((uint8_t *)array->array) + index * array->size;
     size_t shift_size = (array->size * array->length) - (array->size * index);
 
-    memcpy(dest, dest+1, shift_size);
+    memcpy(dest, dest+array->size, shift_size);
     array->length--;
 
     if (array->length < array->capacity >> 1) {
@@ -151,10 +140,7 @@ int array_remove(array_t *array, size_t index)
 
 int array_push_back(array_t *array, void *data)
 {
-    assert(array);
-    assert(data);
-
-    if (array->length == array->capacity) {
+    if (!array || !data || array->length == array->capacity) {
         array = array_expand(array);
         if (!array) {
             return -1;
@@ -172,9 +158,7 @@ int array_push_back(array_t *array, void *data)
 
 int array_pop_back(array_t *array)
 {
-    assert(array);
-
-    if (array->length == 0) {
+    if (!array || array->length == 0) {
         return 0;
     }
 

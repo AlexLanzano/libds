@@ -196,10 +196,11 @@ bool test_array_remove()
 
     fail |= array->length != 7;
 
+    size_t expected[] = {1, 2, 3, 4, 5, 7, 8};
     for (size_t i = 0; i < array->length; i++) {
         uint64_t val;
         array_get(array, i, &val);
-        fail |= val == 0 || val == 6 || val == 9;
+        fail |= val != expected[i];
     }
 
     array_free(array);
