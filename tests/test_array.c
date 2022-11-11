@@ -110,6 +110,32 @@ bool test_array_get_out_of_bounds()
     return fail;
 }
 
+bool test_array_get_reference()
+{
+    bool fail = false;
+    struct test {size_t val;};
+    array_t *array = array_init(10, sizeof(struct test));
+
+    for (size_t i = 0; i < 10; i++) {
+        struct test t = {.val = i};
+        array_push_back(array, &t);
+    }
+
+    struct test *t = NULL;
+    for (size_t i = 0; i < 10; i++) {
+        array_get_reference(array, i, &t);
+        fail |= t->val != i;
+        t->val = i+1;
+    }
+
+    for (size_t i = 0; i < 10; i++) {
+        array_get_reference(array, i, &t);
+        fail |= t->val != i+1;
+    }
+
+    return fail;
+}
+
 bool test_array_insert()
 {
     bool fail = false;
@@ -339,6 +365,7 @@ int main(int argc, char **argv)
     RUN_TEST(test_array_set_out_of_bounds);
     RUN_TEST(test_array_get);
     RUN_TEST(test_array_get_out_of_bounds);
+    RUN_TEST(test_array_get_reference);
     RUN_TEST(test_array_insert);
     RUN_TEST(test_array_insert_out_of_bounds);
     RUN_TEST(test_array_insert_expand);

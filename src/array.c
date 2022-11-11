@@ -85,6 +85,21 @@ int array_get(array_t *array, size_t index, void *data)
     memcpy(dest, src, array->size);
     return 0;
 }
+
+int array_get_reference(array_t *array, size_t index, void *reference)
+{
+    if (!array || !reference || index >= array->length) {
+        return -1;
+    }
+
+    uint8_t *src = ((uint8_t *)array->array) + array->size * index;
+    size_t *dest = (size_t *)reference;
+
+    *dest = (size_t)src;
+
+    return 0;
+}
+
 int array_insert(array_t *array, size_t index, void *data)
 {
     if (!array || !data || index > array->length) {

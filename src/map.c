@@ -69,6 +69,36 @@ static int map_find_index(map_t *map, size_t key, array_t *bucket, size_t *index
     return -1;
 }
 
+static int map_find_reference(map_t *map, size_t key, array_t *bucket, void *reference)
+{
+    assert(map);
+    assert(bucket);
+    assert(reference);
+
+    bool key_found = false;
+    uint8_t *data_reference = NULL;
+
+    for (size_t i = 0; i < bucket->length; i++) {
+        array_get_reference(bucket, i, &data_reference);
+
+        size_t data_key = *(size_t *)data_reference;
+        if (key == data_key) {
+            key_found = true;
+            break;
+        }
+    }
+
+    if (key_found == false) {
+        return -1;
+    }
+
+    uint8_t *value_ptr = data_reference + sizeof(size_t);
+    size_t *dest = (size_t *)reference;
+    *dest = (size_t)value_ptr;
+
+    return 0;
+}
+
 static int map_find_index_key_array(map_t *map, size_t key, array_t *key_array, size_t *index)
 {
     assert(map);
@@ -173,6 +203,17 @@ int map_get(map_t *map, size_t key, void *value)
     array_t *bucket = map_get_bucket_from_key(map, key);
     return map_find_value(map, key, bucket, value);
 }
+
+int map_get_reference(map_t *map, size_t key, void *reference)
+{
+    if (!map || !reference) {
+        return -1;
+    }
+
+    array_t *bucket = map_get_bucket_from_key(map, key);
+    return map_find_reference(map, key, bucket, reference);
+}
+
 int map_remove(map_t *map, size_t key)
 {
     if (!map) {

@@ -72,6 +72,35 @@ bool test_map_get()
     return fail;
 }
 
+bool test_map_get_reference()
+{
+    bool fail = false;
+    struct test {size_t val;};
+
+    map_t *map = NULL;
+    map = map_init(16, sizeof(uint64_t));
+
+    for (uint64_t i = 0; i < 32; i++) {
+        struct test t = {.val = i};
+        map_set(map, i, &t);
+    }
+
+    struct test *t = NULL;
+    for (uint64_t i = 0; i < 32; i++) {
+        map_get_reference(map, i, &t);
+        fail |= t->val != i;
+        t->val = i+1;
+    }
+
+    for (uint64_t i = 0; i < 32; i++) {
+        map_get_reference(map, i, &t);
+        fail |= t->val != i+1;
+    }
+
+    map_free(map);
+    return fail;
+}
+
 bool test_map_remove()
 {
     bool fail = false;
@@ -154,6 +183,7 @@ int main(int argc, char **argv)
     RUN_TEST(test_map_init);
     RUN_TEST(test_map_set);
     RUN_TEST(test_map_get);
+    RUN_TEST(test_map_get_reference);
     RUN_TEST(test_map_remove);
     RUN_TEST(test_map_is_empty);
     RUN_TEST(test_map_key_exists);
