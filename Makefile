@@ -32,6 +32,6 @@ test_%: test_%.o $(LIBRARY)
 
 .PHONY: clean
 clean:
-	rm -rf $(DEPDIR) $(OBJECTS) $(BINARY)
+	rm -rf $(DEPDIR) $(OBJECTS) $(BINARY) $(TEST_OBJECTS) $(TESTS)
 
 include $(DEPENDS)

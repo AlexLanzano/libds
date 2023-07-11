@@ -19,13 +19,13 @@ bool test_map_init()
     bool fail = false;
 
     map_t *map = NULL;
-    map = map_init(16, sizeof(uint64_t));
+    map = map_init(16, sizeof(size_t));
     if (!map) {
         return true;
     }
 
     fail |= map->nbuckets != 16;
-    fail |= map->element_size != sizeof(uint64_t);
+    fail |= map->value_size != sizeof(size_t);
     fail |= map->key_array == NULL;
     fail |= map->map_array == NULL;
 
@@ -38,12 +38,12 @@ bool test_map_set()
     bool fail = false;
 
     map_t *map = NULL;
-    map = map_init(16, sizeof(uint64_t));
+    map = map_init(16, sizeof(size_t));
 
-    uint64_t test_val = 7357;
-    uint64_t test_result;
-    map_set(map, 0, &test_val);
-    map_get(map, 0, &test_result);
+    size_t test_val = 7357;
+    size_t test_result;
+    map_set(map, 0, &test_val, sizeof(size_t));
+    map_get(map, 0, &test_result, sizeof(size_t));
 
     fail |= test_val != test_result;
 
@@ -56,15 +56,15 @@ bool test_map_get()
     bool fail = false;
 
     map_t *map = NULL;
-    map = map_init(16, sizeof(uint64_t));
+    map = map_init(16, sizeof(size_t));
 
-    for (uint64_t i = 0; i < 32; i++) {
-        map_set(map, i, &i);
+    for (size_t i = 0; i < 32; i++) {
+        map_set(map, i, &i, sizeof(size_t));
     }
 
-    for (uint64_t i = 0; i < 32; i++) {
-        uint64_t v;
-        map_get(map, i, &v);
+    for (size_t i = 0; i < 32; i++) {
+        size_t v;
+        map_get(map, i, &v, sizeof(size_t));
         fail |= v != i;
     }
 
@@ -78,22 +78,22 @@ bool test_map_get_reference()
     struct test {size_t val;};
 
     map_t *map = NULL;
-    map = map_init(16, sizeof(uint64_t));
+    map = map_init(16, sizeof(size_t));
 
-    for (uint64_t i = 0; i < 32; i++) {
+    for (size_t i = 0; i < 32; i++) {
         struct test t = {.val = i};
-        map_set(map, i, &t);
+        map_set(map, i, &t, sizeof(struct test));
     }
 
     struct test *t = NULL;
-    for (uint64_t i = 0; i < 32; i++) {
-        map_get_reference(map, i, &t);
+    for (size_t i = 0; i < 32; i++) {
+        map_get_reference(map, i, &t, sizeof(struct test));
         fail |= t->val != i;
         t->val = i+1;
     }
 
-    for (uint64_t i = 0; i < 32; i++) {
-        map_get_reference(map, i, &t);
+    for (size_t i = 0; i < 32; i++) {
+        map_get_reference(map, i, &t, sizeof(struct test));
         fail |= t->val != i+1;
     }
 
@@ -106,24 +106,24 @@ bool test_map_remove()
     bool fail = false;
 
     map_t *map = NULL;
-    map = map_init(16, sizeof(uint64_t));
+    map = map_init(16, sizeof(size_t));
 
-    for (uint64_t i = 0; i < 32; i++) {
-        map_set(map, i, &i);
+    for (size_t i = 0; i < 32; i++) {
+        map_set(map, i, &i, sizeof(size_t));
     }
 
-    map_remove(map, 4);
-    map_remove(map, 29);
-    map_remove(map, 10);
-    map_remove(map, 17);
+    map_remove(map, 4, sizeof(size_t));
+    map_remove(map, 29, sizeof(size_t));
+    map_remove(map, 10, sizeof(size_t));
+    map_remove(map, 17, sizeof(size_t));
 
     fail |= map->key_array->length != 28;
-    fail |= map_remove(map, 100) != -1;
+    fail |= map_remove(map, 100, sizeof(size_t)) != -1;
 
-    for (uint64_t i = 0; i < map->key_array->length; i++) {
+    for (size_t i = 0; i < map->key_array->length; i++) {
         int result;
-        uint64_t v;
-        result = map_get(map, i, &v);
+        size_t v;
+        result = map_get(map, i, &v, sizeof(size_t));
         if (i == 4  || i == 29 || i == 10 || i == 17) {
             fail |= result != -1;
 
@@ -141,10 +141,10 @@ bool test_map_is_empty()
 {
     bool fail = false;
 
-    map_t *map_empty = map_init(16, sizeof(uint64_t));
-    map_t *map_not_empty = map_init(16, sizeof(uint64_t));
-    uint64_t test_val = 7357;
-    map_set(map_not_empty, 0, &test_val);
+    map_t *map_empty = map_init(16, sizeof(size_t));
+    map_t *map_not_empty = map_init(16, sizeof(size_t));
+    size_t test_val = 7357;
+    map_set(map_not_empty, 0, &test_val, sizeof(size_t));
 
     fail |= map_is_empty(map_empty) != true;
     fail |= map_is_empty(map_not_empty) != false;
@@ -158,12 +158,12 @@ bool test_map_key_exists()
 {
     bool fail = false;
 
-    map_t *map1 = map_init(16, sizeof(uint64_t));
-    map_t *map2 = map_init(16, sizeof(uint64_t));
-    uint64_t test_val = 7357;
+    map_t *map1 = map_init(16, sizeof(size_t));
+    map_t *map2 = map_init(16, sizeof(size_t));
+    size_t test_val = 7357;
 
-    map_set(map1, 0, &test_val);
-    map_set(map2, 1, &test_val);
+    map_set(map1, 0, &test_val, sizeof(size_t));
+    map_set(map2, 1, &test_val, sizeof(size_t));
 
     fail |= map_key_exists(map1, 0) != true;
     fail |= map_key_exists(map2, 0) != false;
