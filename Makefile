@@ -1,6 +1,6 @@
 LIBRARIES =
 INCLUDE = -I. -Iinclude/ -Itests/ctest/ -Itests/ctest/Unity/src
-CFLAGS = -Wall -Werror $(INCLUDE) $(LIBRARIES) -g3 \
+CFLAGS = -Wall -Werror $(INCLUDE) $(LIBRARIES) -g3  -DUNITY_OUTPUT_COLOR \
          -MMD -MF $(DEPDIR)/$*.d
 
 DEPDIR = .deps/
