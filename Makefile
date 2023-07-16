@@ -1,5 +1,5 @@
 LIBRARIES =
-INCLUDE = -I. -Iinclude/
+INCLUDE = -I. -Iinclude/ -Itests/ctest/ -Itests/ctest/Unity/src
 CFLAGS = -Wall -Werror $(INCLUDE) $(LIBRARIES) -g3 \
          -MMD -MF $(DEPDIR)/$*.d
 
@@ -8,15 +8,18 @@ DEPDIR = .deps/
 SOURCE ?= $(wildcard src/*.c)
 OBJECTS = $(patsubst %.c,%.o,$(SOURCE))
 
-TEST_SOURCE = $(wildcard tests/*.c)
+TEST_SOURCE = $(filter-out src/main.c, $(SOURCE)) \
+              $(wildcard tests/*.c) \
+              $(wildcard tests/ctest/*.c) \
+              $(wildcard tests/ctest/Unity/src/*.c)
+
 TEST_OBJECTS = $(patsubst %.c,%.o,$(TEST_SOURCE))
-TESTS = $(patsubst %.c,%,$(TEST_SOURCE))
 
 DEPENDS += $(patsubst %.c,$(DEPDIR)/%.d,$(SOURCE)) $(patsubst %.c,$(DEPDIR)/%.d,$(TEST_SOURCE))
 
 LIBRARY = libds.a
 
-all: $(LIBRARY) $(TESTS)
+all: $(LIBRARY) test
 
 %.d:
 	@mkdir -p $(@D)
@@ -27,8 +30,8 @@ all: $(LIBRARY) $(TESTS)
 $(LIBRARY): $(OBJECTS)
 	ar -rc $@ $^
 
-test_%: test_%.o $(LIBRARY)
-	gcc $(CFLAGS) -o $@ $^
+test:  $(TEST_OBJECTS) $(LIBRARY)
+	gcc $(CFLAGS) -T tests/ctest/test_cases_section.ld -o $@ $^
 
 .PHONY: clean
 clean:
